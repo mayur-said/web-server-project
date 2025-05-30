@@ -118,9 +118,3 @@ class HttpHandler:
         self.writer.close()
         await self.writer.wait_closed()
         return
-        
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    server = AsyncHTTPServer()
-    asyncio.run(server.listen_serve())
