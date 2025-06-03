@@ -9,7 +9,7 @@ server_logger = logging.getLogger(__name__)
 class AsyncHTTPServer:
     MAX_BODY_SIZE:int = 1024 * 1024 # 1 MB
 
-    def __init__(self, app: Callable[[Dict[str, Any]], Dict[str, Any]], host: str = '127.0.0.1', port:int =8080):
+    def __init__(self, app: Callable[[Dict[str, Any]], Dict[str, Any]], host: str = '127.0.0.1', port:int = 8080):
         self.app = app
         self.host = host
         self.port = port
@@ -75,7 +75,7 @@ class HttpHandler:
                 body = await self.reader.readexactly(content_length)
 
             # construct a basic ASGI scope dictionary
-            # This is a simplified version of a real ASGI scope
+            # this is a simplified version of a real ASGI scope
             scope = {
                 'type': 'http',
                 'http_version': http_version,

@@ -8,27 +8,27 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 app_logger = logging.getLogger(__name__)
 
-# Initialize the application
+# initialize the application
 app = App()
 
-# In-memory "database" for demonstration
+# in-memory database for demonstration
 users_db = {
-    "1": {"id": "1", "name": "Mayur", "email": "mayur@example.com"},
-    "2": {"id": "2", "name": "Admin", "email": "Admin@example.com"}
+    "1": {"id": "1", "name": "mayur", "email": "mayur@example.com"},
+    "2": {"id": "2", "name": "admin", "email": "admin@example.com"}
 }
 
-# --- Define API Endpoints ---
+# define API endpoints
 @app.get("/")
 async def read_root(request: Request):
-    """Handles GET requests to the root path."""
-    return Response({"message": "Welcome to the simple REST API!"}, content_type="application/json")
+    """handles GET requests to the root path."""
+    return Response({"message": "welcome to the simple REST API!"}, content_type="application/json")
 
 @app.get("/users")
 async def get_users(request: Request):
     """
-    Handles GET requests to /users.
-    Supports query parameters for filtering.
-    Example: /users?name=Alice
+    handles GET requests to /users.
+    supports query parameters for filtering.
+    example: /users?name=Alice
     """
     name_filter = request.query_params.get('name')
     if name_filter:
@@ -39,46 +39,46 @@ async def get_users(request: Request):
 @app.get("/users/{user_id}")
 async def get_user_by_id(request: Request):
     """
-    Handles GET requests to /users/{user_id}.
-    Demonstrates path parameters.
-    Example: /users/1
+    handles GET requests to /users/{user_id}.
+    demonstrates path parameters.
+    example: /users/1
     """
     user_id = request.path_params.get('user_id')
     user = users_db.get(user_id)
     if user:
         return Response(user, content_type="application/json")
-    return Response({"detail": "User not found"}, status_code=404, content_type="application/json")
+    return Response({"detail": "user not found"}, status_code=404, content_type="application/json")
 
 @app.post("/users")
 async def create_user(request: Request):
     """
-    Handles POST requests to /users.
-    Expects a JSON body.
-    Example: POST /users with body {"name": "Charlie", "email": "charlie@example.com"}
+    handles POST requests to /users.
+    expects a JSON body.
+    example: POST /users with body {"name": "mayur", "email": "mayur@example.com"}
     """
     if request.json:
         new_user_data = request.json
-        # Generate a simple ID
+        # generate a simple ID
         new_id = str(len(users_db) + 1)
         new_user = {"id": new_id, **new_user_data}
         users_db[new_id] = new_user
         return Response(new_user, status_code=201, content_type="application/json")
-    return Response({"detail": "Invalid JSON body"}, status_code=400, content_type="application/json")
+    return Response({"detail": "invalid JSON body"}, status_code=400, content_type="application/json")
 
 @app.put("/users/{user_id}")
 async def update_user(request: Request):
     """
-    Handles PUT requests to /users/{user_id}.
-    Expects a JSON body for full replacement.
-    Example: PUT /users/1 with body {"name": "Alicia", "email": "alicia_new@example.com"}
+    handles PUT requests to /users/{user_id}.
+    expects a JSON body for full replacement.
+    example: PUT /users/1 with body {"name": "mayur", "email": "mayur_new@example.com"}
     """
     user_id = request.path_params.get('user_id')
     if user_id not in users_db:
-        return Response({"detail": "User not found"}, status_code=404, content_type="application/json")
+        return Response({"detail": "user not found"}, status_code=404, content_type="application/json")
 
     if request.json:
         updated_data = request.json
-        # In a real app, you'd validate the data
+        # in a real app, you would validate the data
         users_db[user_id].update(updated_data)
         return Response(users_db[user_id], content_type="application/json")
     return Response({"detail": "Invalid JSON body"}, status_code=400, content_type="application/json")
@@ -86,9 +86,9 @@ async def update_user(request: Request):
 @app.patch("/users/{user_id}")
 async def partial_update_user(request: Request):
     """
-    Handles PATCH requests to /users/{user_id}.
-    Expects a JSON body for partial updates.
-    Example: PATCH /users/1 with body {"email": "alice_updated@example.com"}
+    handles PATCH requests to /users/{user_id}.
+    expects a JSON body for partial updates.
+    example: PATCH /users/1 with body {"email": "mayur_updated@example.com"}
     """
     user_id = request.path_params.get('user_id')
     if user_id not in users_db:
@@ -96,33 +96,33 @@ async def partial_update_user(request: Request):
 
     if request.json:
         patch_data = request.json
-        # Apply patch to existing user data
+        # apply patch to existing user data
         for key, value in patch_data.items():
-            if key in users_db[user_id]: # Only update existing fields for simplicity
+            if key in users_db[user_id]:
                 users_db[user_id][key] = value
         return Response(users_db[user_id], content_type="application/json")
-    return Response({"detail": "Invalid JSON body"}, status_code=400, content_type="application/json")
+    return Response({"detail": "invalid JSON body"}, status_code=400, content_type="application/json")
 
 @app.delete("/users/{user_id}")
 async def delete_user(request: Request):
     """
-    Handles DELETE requests to /users/{user_id}.
-    Example: DELETE /users/1
+    handles DELETE requests to /users/{user_id}.
+    example: DELETE /users/1
     """
     user_id = request.path_params.get('user_id')
     if user_id in users_db:
         del users_db[user_id]
-        return Response({"message": "User deleted successfully"}, status_code=204, content_type="application/json")
-    return Response({"detail": "User not found"}, status_code=404, content_type="application/json")
+        return Response({"message": "user deleted successfully"}, status_code=204, content_type="application/json")
+    return Response({"detail": "user not found"}, status_code=404, content_type="application/json")
 
-# --- Main execution block ---
+# main
 async def main():
-    server = AsyncHTTPServer(app)
+    server = AsyncHTTPServer(app, host='127.0.0.1', port=8080)
     await server.listen_serve()
 
 if __name__ == "__main__":
-    app_logger.info("Starting the application...") 
+    app_logger.info("starting the application...") 
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        app_logger.warning("\nServer shutting down.")
+        app_logger.warning("\nserver shutting down.")

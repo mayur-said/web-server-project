@@ -8,7 +8,7 @@ framework_logger = logging.getLogger(__name__)
 
 class Request:
     """
-    Represents an incoming HTTP request. Parses method, path, headers,
+    represents an incoming HTTP request. parses method, path, headers,
     query parameters, path parameters, and body.
     """
     def __init__(self, scope: Dict[str, Any]):
@@ -32,9 +32,9 @@ class Request:
 
 class Response:
     """
-    Represents an outgoing HTTP response.
+    represents an outgoing HTTP response.
     """
-    def __init__(self, body: bytes ="", status_code: int = 200, reason_phrase: str = "OK", headers: Dict[str, Any] = None, content_type: str = "text/plain"):
+    def __init__(self, body: bytes ="", status_code: int = 200, reason_phrase: str = "OK", headers: Dict[str, Any] = None, content_type: str = "application/json"):
         self.body: bytes = body
         self.status_code: int = status_code
         self.reason_phrase: str = reason_phrase
@@ -59,21 +59,21 @@ class Response:
     def __repr__(self):
         return f"<Response status={self.status_code} content_type={self.content_type}>"
 
-# Define a type alias for handler functions for better readability
-# A handler takes a Request and returns an Awaitable Response
+# define a type alias for handler functions for better readability
+# a handler takes a Request and returns an Awaitable Response
 Handler = Callable[[Request], Awaitable[Response]]
 
 class Router:
     """
-    Handles routing requests to the appropriate handler functions based on
+    handles routing requests to the appropriate handler functions based on
     HTTP method and path. Supports path parameters.
     """
     def __init__(self) -> None:
         self.routes: Dict[str, List[Tuple[re.Pattern[str], Handler]]] = {}
 
     def _add_route(self, method: str, path: str, handler: Handler) -> None:
-        """Adds a route for a specific HTTP method."""
-        # Convert path to a regex pattern to capture path parameters
+        """adds a route for a specific HTTP method."""
+        # convert path to a regex pattern to capture path parameters
         # e.g., /users/{user_id} -> /users/(?P<user_id>[^/]+)
         pattern = re.sub(r'\{([a-zA-Z_][a-zA-Z0-9_]*)\}', r'(?P<\1>[^/]+)', path)
         self.routes.setdefault(method, []).append((re.compile(f"^{pattern}$"), handler))
@@ -111,7 +111,7 @@ class Router:
 
     async def dispatch(self, request: Request) -> Response:
         """
-        Dispatches the request to the matching handler.
+        dispatches the request to the matching handler.
         Sets request.path_params if path parameters are found.
         """
         if request.method in self.routes:
@@ -124,13 +124,13 @@ class Router:
 
 class App:
     """
-    The main application class. It's an ASGI-compatible callable that
+    the main application class. It's an ASGI-compatible callable that
     integrates the router and handles the request/response cycle.
     """
     def __init__(self):
         self.router = Router()
 
-    # Expose router methods directly on the app for convenience
+    # expose router methods directly on the app for convenience
     def get(self, path) -> Callable[[Handler], Handler]: return self.router.get(path)
     def post(self, path) -> Callable[[Handler], Handler]: return self.router.post(path)
     def put(self, path) -> Callable[[Handler], Handler]: return self.router.put(path)
@@ -139,14 +139,13 @@ class App:
 
     async def __call__(self, scope: Dict[str, Any]) -> Dict[str, Any]:
         """
-        The ASGI application entry point.
+        the ASGI application entry point.
         """
         if scope['type'] == 'http':
-            # Create a Request object
             request = Request(scope)
-            framework_logger.info(f"Received request: {request.method} {request.path}")
+            framework_logger.info(f"received request: {request.method} {request.path}")
 
-            # Dispatch the request to the router
+            # dispatch the request to the router
             response = await self.router.dispatch(request)
             reponse_text = {
                 'status_code': response.status_code,
