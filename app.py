@@ -19,12 +19,12 @@ users_db = {
 
 # define API endpoints
 @app.get("/")
-async def read_root(request: Request):
+async def read_root(request: Request) -> Response:
     """handles GET requests to the root path."""
     return Response({"message": "welcome to the simple REST API!"}, content_type="application/json")
 
 @app.get("/users")
-async def get_users(request: Request):
+async def get_users(request: Request) -> Response:
     """
     handles GET requests to /users.
     supports query parameters for filtering.
@@ -37,7 +37,7 @@ async def get_users(request: Request):
     return Response(list(users_db.values()), content_type="application/json")
 
 @app.get("/users/{user_id}")
-async def get_user_by_id(request: Request):
+async def get_user_by_id(request: Request) -> Response:
     """
     handles GET requests to /users/{user_id}.
     demonstrates path parameters.
@@ -47,10 +47,10 @@ async def get_user_by_id(request: Request):
     user = users_db.get(user_id)
     if user:
         return Response(user, content_type="application/json")
-    return Response({"detail": "user not found"}, status_code=404, content_type="application/json")
+    return Response({"detail": "user not found"}, status_code=404, reason_phrase="Not Found", content_type="application/json")
 
 @app.post("/users")
-async def create_user(request: Request):
+async def create_user(request: Request) -> Response:
     """
     handles POST requests to /users.
     expects a JSON body.
@@ -63,10 +63,10 @@ async def create_user(request: Request):
         new_user = {"id": new_id, **new_user_data}
         users_db[new_id] = new_user
         return Response(new_user, status_code=201, content_type="application/json")
-    return Response({"detail": "invalid JSON body"}, status_code=400, content_type="application/json")
+    return Response({"detail": "invalid JSON body"}, status_code=400, reason_phrase="Bad Request", content_type="application/json")
 
 @app.put("/users/{user_id}")
-async def update_user(request: Request):
+async def update_user(request: Request) -> Response:
     """
     handles PUT requests to /users/{user_id}.
     expects a JSON body for full replacement.
@@ -74,17 +74,17 @@ async def update_user(request: Request):
     """
     user_id = request.path_params.get('user_id')
     if user_id not in users_db:
-        return Response({"detail": "user not found"}, status_code=404, content_type="application/json")
+        return Response({"detail": "user not found"}, status_code=404, reason_phrase="Not Found", content_type="application/json")
 
     if request.json:
         updated_data = request.json
         # in a real app, you would validate the data
         users_db[user_id].update(updated_data)
         return Response(users_db[user_id], content_type="application/json")
-    return Response({"detail": "Invalid JSON body"}, status_code=400, content_type="application/json")
+    return Response({"detail": "Invalid JSON body"}, status_code=400, reason_phrase="Bad Request", content_type="application/json")
 
 @app.patch("/users/{user_id}")
-async def partial_update_user(request: Request):
+async def partial_update_user(request: Request) -> Response:
     """
     handles PATCH requests to /users/{user_id}.
     expects a JSON body for partial updates.
@@ -92,7 +92,7 @@ async def partial_update_user(request: Request):
     """
     user_id = request.path_params.get('user_id')
     if user_id not in users_db:
-        return Response({"detail": "User not found"}, status_code=404, content_type="application/json")
+        return Response({"detail": "User not found"}, status_code=404, reason_phrase="Not Found", content_type="application/json")
 
     if request.json:
         patch_data = request.json
@@ -101,10 +101,10 @@ async def partial_update_user(request: Request):
             if key in users_db[user_id]:
                 users_db[user_id][key] = value
         return Response(users_db[user_id], content_type="application/json")
-    return Response({"detail": "invalid JSON body"}, status_code=400, content_type="application/json")
+    return Response({"detail": "invalid JSON body"}, status_code=400, reason_phrase="Bad Request", content_type="application/json")
 
 @app.delete("/users/{user_id}")
-async def delete_user(request: Request):
+async def delete_user(request: Request) -> Response:
     """
     handles DELETE requests to /users/{user_id}.
     example: DELETE /users/1
@@ -113,10 +113,10 @@ async def delete_user(request: Request):
     if user_id in users_db:
         del users_db[user_id]
         return Response({"message": "user deleted successfully"}, status_code=204, content_type="application/json")
-    return Response({"detail": "user not found"}, status_code=404, content_type="application/json")
+    return Response({"detail": "user not found"}, status_code=404, reason_phrase="Not Found", content_type="application/json")
 
 # main
-async def main():
+async def main() -> None:
     server = AsyncHTTPServer(app, host='127.0.0.1', port=8080)
     await server.listen_serve()
 
