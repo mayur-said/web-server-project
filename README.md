@@ -8,7 +8,7 @@ This project was built to:
 ## Overview
 This is a simple asynchronous web server and lightweight REST API framework built entirely from scratch using python's built-in asyncio library. 
 This project is not anywhere close to production-ready servers like uvicorn, gunicorn, etc. or frameworks like Flask or FastAPI. 
-However, this project is built to gain an intuitive understanding of how servers use TCP connection, HTTP protocol, multi-threading and event-loops to manage thousands to connections concurrently.
+However, this project is built to gain an intuitive understanding of how servers use TCP connection, HTTP protocol, multi-threading and event-loops to manage thousands of connections concurrently.
 If you have never built something similar, I would highly suggest you to build it! 
 
 ## Getting Started
